@@ -1,9 +1,13 @@
 from sqlalchemy.orm import Session
 
-from app.core.security import hash_password
+from app.core.security import (
+    create_access_token,
+    hash_password,
+    verify_password,
+)
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
-from app.schemas.auth import RegisterRequest
+from app.schemas.auth import LoginRequest, RegisterRequest
 
 
 class AuthService:
@@ -39,3 +43,33 @@ class AuthService:
             db,
             user,
         )
+
+    def login(
+        self,
+        db: Session,
+        request: LoginRequest,
+    ):
+
+        user = self.repository.get_by_email(
+            db,
+            request.email,
+        )
+
+        if user is None:
+            raise ValueError(
+                "Invalid email or password."
+            )
+
+        if not verify_password(
+            request.password,
+            user.password_hash,
+        ):
+            raise ValueError(
+                "Invalid email or password."
+            )
+
+        token = create_access_token(
+            user.email,
+        )
+
+        return token
