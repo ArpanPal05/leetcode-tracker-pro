@@ -5,6 +5,10 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+from app.exceptions.auth import (
+    EmailAlreadyExists,
+    InvalidCredentials,
+)
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import LoginRequest, RegisterRequest
@@ -27,9 +31,7 @@ class AuthService:
         )
 
         if existing_user:
-            raise ValueError(
-                "Email already registered."
-            )
+            raise EmailAlreadyExists()
 
         user = User(
             username=request.username,
@@ -56,9 +58,7 @@ class AuthService:
         )
 
         if user is None:
-            raise ValueError(
-                "Invalid email or password."
-            )
+            raise InvalidCredentials()
 
         if not verify_password(
             request.password,

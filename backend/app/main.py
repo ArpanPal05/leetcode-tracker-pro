@@ -2,12 +2,17 @@ from fastapi import Depends, FastAPI
 
 from app.api.auth import router as auth_router
 from app.core.dependencies import get_current_user
+from app.exceptions.handlers import (
+    register_exception_handlers,
+)
 from app.models.user import User
 
 app = FastAPI(
     title="LeetCode Tracker Pro API",
     version="1.0.0",
 )
+
+register_exception_handlers(app)
 
 app.include_router(auth_router)
 
