@@ -73,3 +73,6 @@ class AuthService:
         )
 
         return token
+
+def get_auth_service():
+        return AuthService()
