@@ -1,6 +1,9 @@
 from fastapi import Depends, FastAPI
 
 from app.api.auth import router as auth_router
+from app.api.problem import (
+    router as problem_router,
+)
 from app.core.dependencies import get_current_user
 from app.exceptions.handlers import (
     register_exception_handlers,
@@ -11,6 +14,8 @@ app = FastAPI(
     title="LeetCode Tracker Pro API",
     version="1.0.0",
 )
+
+app.include_router(problem_router)
 
 register_exception_handlers(app)
 

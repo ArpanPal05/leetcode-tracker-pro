@@ -2,6 +2,7 @@ from app.exceptions.auth import (
     EmailAlreadyExists,
     InvalidCredentials,
 )
+from app.exceptions.problem import ProblemNotFound
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
@@ -27,5 +28,16 @@ def register_exception_handlers(app: FastAPI):
             content={
                 "success": False,
                 "message": "Invalid email or password."
+            },
+        )
+
+    @app.exception_handler(ProblemNotFound)
+    async def problem_not_found_handler(request, exc):
+
+        return JSONResponse(
+            status_code=404,
+            content={
+                "success": False,
+                "message": "Problem not found."
             },
         )
