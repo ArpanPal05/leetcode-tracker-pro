@@ -1,2 +1,0 @@
-class ProblemNotFound(Exception):
-    pass

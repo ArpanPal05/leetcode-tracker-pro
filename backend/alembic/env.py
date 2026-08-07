@@ -2,10 +2,12 @@ from logging.config import fileConfig
 
 from alembic import context
 from app.core.config import settings
-from app.database.base import Base
-from app.models.problem import Problem
-from app.models.user import User
-from app.models.user_problem import UserProblem
+from app.db.base import Base
+from app.features.problem_import.associations import problem_topics  # noqa: F401
+from app.features.problem_import.models import Topic  # noqa: F401
+from app.features.problems.models import Problem
+from app.features.user_problems.models import UserProblem
+from app.features.users.models import User
 from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides

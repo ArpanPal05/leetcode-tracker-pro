@@ -4,19 +4,16 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.database.session import get_db
-from app.repositories.user_repository import UserRepository
+from app.db.session import get_db
+from app.features.users.repository import UserRepository, get_user_repository
 
 security = HTTPBearer()
 
-repository = UserRepository()
-
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(
-        security
-    ),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
+    user_repository: UserRepository = Depends(get_user_repository),
 ):
 
     token = credentials.credentials
@@ -31,7 +28,7 @@ def get_current_user(
 
         email = payload.get("sub")
 
-        user = repository.get_by_email(
+        user = user_repository.get_by_email(
             db,
             email,
         )
