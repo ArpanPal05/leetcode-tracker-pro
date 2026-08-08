@@ -90,6 +90,12 @@ class UserProblem(Base):
         nullable=True,
     )
 
+    first_attempted_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,

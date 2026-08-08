@@ -72,8 +72,9 @@ class UserProblemService:
         if existing is not None:
             raise UserProblemAlreadyExists()
 
+        now = datetime.utcnow()
         solved_at = (
-            datetime.utcnow()
+            now
             if request.status in (ProblemStatus.SOLVED, ProblemStatus.MASTERED)
             else None
         )
@@ -87,6 +88,7 @@ class UserProblemService:
             time_taken_minutes=request.time_taken_minutes,
             solution_url=request.solution_url,
             favorite=request.favorite,
+            first_attempted_at=now,
             solved_at=solved_at,
         )
 
@@ -112,9 +114,12 @@ class UserProblemService:
         if existing is not None:
             raise UserProblemAlreadyExists()
 
-        solved_at = None
-        if request.status in (ProblemStatus.SOLVED, ProblemStatus.MASTERED):
-            solved_at = datetime.utcnow()
+        now = datetime.utcnow()
+        solved_at = (
+            now
+            if request.status in (ProblemStatus.SOLVED, ProblemStatus.MASTERED)
+            else None
+        )
 
         user_problem = UserProblem(
             user_id=user_id,
@@ -125,6 +130,7 @@ class UserProblemService:
             time_taken_minutes=request.time_taken_minutes,
             solution_url=request.solution_url,
             favorite=request.favorite,
+            first_attempted_at=now,
             solved_at=solved_at,
         )
 
@@ -157,10 +163,12 @@ class UserProblemService:
             ProblemStatus.SOLVED,
             ProblemStatus.MASTERED,
         ):
-            if not user_problem.solved_at:
+            if user_problem.solved_at is None:
                 user_problem.solved_at = datetime.utcnow()
 
         for field, value in update_data.items():
+            if field == "solved_at" and user_problem.solved_at is not None:
+                continue
             setattr(user_problem, field, value)
 
         return self.repository.update(db, user_problem)

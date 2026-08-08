@@ -64,6 +64,7 @@ class UserProblemResponse(BaseModel):
     favorite: bool
     solution_url: str | None = None
     solved_at: datetime | None = None
+    first_attempted_at: datetime
     last_revised_at: datetime | None = None
     created_at: datetime
     updated_at: datetime

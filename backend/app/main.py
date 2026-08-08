@@ -4,6 +4,7 @@ from app.core.dependencies import get_current_user
 from app.core.handlers import register_exception_handlers
 from app.core.logging import setup_logging
 from app.features.auth.router import router as auth_router
+from app.features.dashboard.router import router as dashboard_router
 from app.features.problem_import.associations import problem_topics  # noqa: F401
 from app.features.problem_import.models import Topic  # noqa: F401
 from app.features.problem_import.router import router as problem_import_router
@@ -24,6 +25,7 @@ app.include_router(problem_router)
 app.include_router(auth_router)
 app.include_router(user_problem_router)
 app.include_router(problem_import_router)
+app.include_router(dashboard_router)
 
 register_exception_handlers(app)
 
