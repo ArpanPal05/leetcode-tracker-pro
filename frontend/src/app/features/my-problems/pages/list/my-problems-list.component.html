@@ -1,0 +1,71 @@
+<div class="my-problems-page">
+  <!-- Top Header Section -->
+  <div class="page-header">
+    <div>
+      <h1>My Tracked Problems</h1>
+      <p>Manage, search, and review all your LeetCode problem tracking records.</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/tracker">
+      <mat-icon>add</mat-icon>
+      <span>Track Problem</span>
+    </button>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <mat-card class="controls-card">
+    <app-search-bar (searchChange)="onSearchChange($event)"></app-search-bar>
+    <app-filter-panel
+      [selectedStatus]="myProblemsStore.statusFilter()"
+      [selectedLanguage]="myProblemsStore.languageFilter()"
+      [selectedFavorite]="myProblemsStore.favoriteFilter()"
+      (filterChange)="onFilterChange($event)"
+      (clearFilters)="onClearFilters()"
+    ></app-filter-panel>
+  </mat-card>
+
+  <!-- Loading State -->
+  <app-my-problems-loading-state *ngIf="myProblemsStore.loading()"></app-my-problems-loading-state>
+
+  <!-- Content Table / Mobile Cards / Empty State -->
+  <ng-container *ngIf="!myProblemsStore.loading()">
+    <app-empty-state
+      *ngIf="myProblemsStore.problems().length === 0"
+    ></app-empty-state>
+
+    <ng-container *ngIf="myProblemsStore.problems().length > 0">
+      <!-- Desktop Table -->
+      <div class="desktop-only">
+        <app-problem-table
+          [problems]="myProblemsStore.problems()"
+          (viewDetails)="onViewDetails($event)"
+          (editProblem)="onEditProblem($event)"
+          (deleteProblem)="onDeleteProblem($event)"
+          (toggleFavorite)="onToggleFavorite($event)"
+        ></app-problem-table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="mobile-only">
+        <app-problem-card
+          [problems]="myProblemsStore.problems()"
+          (viewDetails)="onViewDetails($event)"
+          (editProblem)="onEditProblem($event)"
+          (deleteProblem)="onDeleteProblem($event)"
+          (toggleFavorite)="onToggleFavorite($event)"
+        ></app-problem-card>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-wrapper">
+        <mat-paginator
+          [length]="myProblemsStore.total()"
+          [pageSize]="myProblemsStore.size()"
+          [pageIndex]="myProblemsStore.page() - 1"
+          [pageSizeOptions]="[10, 20, 50, 100]"
+          (page)="onPageChange($event)"
+          aria-label="Select page of tracked problems"
+        ></mat-paginator>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

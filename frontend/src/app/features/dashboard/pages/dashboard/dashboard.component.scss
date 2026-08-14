@@ -1,0 +1,45 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.dashboard-header {
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0 0 0.25rem 0;
+  }
+
+  p {
+    font-size: 0.9375rem;
+    color: #94a3b8;
+    margin: 0;
+  }
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+
+  @media (max-width: 991px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.activity-streak-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+
+  @media (max-width: 991px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.heatmap-row {
+  width: 100%;
+}

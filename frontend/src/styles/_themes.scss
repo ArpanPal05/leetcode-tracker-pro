@@ -1,0 +1,11 @@
+@use 'variables' as *;
+
+// Global theme hooks
+:root {
+  --color-primary: #{$primary-color};
+  --color-bg-dark: #{$bg-dark};
+  --color-bg-card: #{$bg-card};
+  --color-text-primary: #{$text-primary};
+  --color-text-secondary: #{$text-secondary};
+  --color-border: #{$border-color};
+}

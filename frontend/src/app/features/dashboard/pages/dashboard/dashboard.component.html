@@ -1,0 +1,46 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Dashboard Overview</h1>
+    <p>Welcome back! Here is your DSA problem solving journey at a glance.</p>
+  </div>
+
+  <app-loading-state *ngIf="dashboardStore.loading()"></app-loading-state>
+
+  <ng-container *ngIf="!dashboardStore.loading()">
+    <!-- Section 1: Summary Cards -->
+    <app-statistics-grid
+      [summary]="dashboardStore.summary()"
+      [streak]="dashboardStore.streak()"
+    ></app-statistics-grid>
+
+    <!-- Section 2 & 3: Charts Row -->
+    <div class="charts-row">
+      <app-difficulty-chart
+        [difficulty]="dashboardStore.distributions()?.difficulty ?? null"
+      ></app-difficulty-chart>
+
+      <app-language-chart
+        [languages]="dashboardStore.distributions()?.languages ?? null"
+      ></app-language-chart>
+    </div>
+
+    <!-- Section 4 & 6: Recent Activity & Streak -->
+    <div class="activity-streak-row">
+      <app-recent-activity
+        [activities]="dashboardStore.activity()?.recent ?? null"
+        [timeStats]="dashboardStore.activity()?.time_statistics ?? null"
+      ></app-recent-activity>
+
+      <app-streak-card
+        [streak]="dashboardStore.streak()"
+      ></app-streak-card>
+    </div>
+
+    <!-- Section 7: Heatmap -->
+    <div class="heatmap-row">
+      <app-heatmap
+        [data]="dashboardStore.heatmap()"
+      ></app-heatmap>
+    </div>
+  </ng-container>
+</div>

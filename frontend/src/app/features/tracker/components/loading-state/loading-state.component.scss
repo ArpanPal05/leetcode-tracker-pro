@@ -1,0 +1,33 @@
+.skeleton-card {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 720px;
+  margin: 0 auto;
+  height: 400px;
+}
+
+.skeleton-pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 200% 100%;
+  border-radius: 6px;
+}
+
+.skeleton-header {
+  height: 24px;
+  width: 40%;
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-field {
+  height: 48px;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+@keyframes pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

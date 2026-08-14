@@ -1,0 +1,77 @@
+.table-card {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.mat-mdc-table {
+  background-color: transparent !important;
+  width: 100%;
+}
+
+.mat-mdc-header-cell {
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.mat-mdc-cell {
+  color: #cbd5e1 !important;
+  border-bottom: 1px solid #334155 !important;
+  font-size: 0.875rem;
+}
+
+.problem-title {
+  font-weight: 600;
+  color: #f8fafc !important;
+}
+
+.star-icon {
+  color: #64748b;
+  cursor: pointer;
+  &.active {
+    color: #f59e0b;
+  }
+}
+
+.chip-difficulty {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+
+  &.easy { background-color: rgba(16, 185, 129, 0.15); color: #10b981; }
+  &.medium { background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+  &.hard { background-color: rgba(239, 68, 68, 0.15); color: #ef4444; }
+}
+
+.badge-status {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #334155;
+  color: #94a3b8;
+  text-transform: uppercase;
+
+  &.solved, &.mastered { background-color: rgba(16, 185, 129, 0.15); color: #10b981; }
+  &.attempting, &.solving { background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}

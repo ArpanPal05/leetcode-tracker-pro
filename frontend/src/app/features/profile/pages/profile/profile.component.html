@@ -1,0 +1,46 @@
+<div class="profile-page">
+  <div class="page-header">
+    <div>
+      <h1>Profile & Settings</h1>
+      <p>Manage your account credentials, preferences, and personal statistics.</p>
+    </div>
+    <button mat-stroked-button color="accent" (click)="onChangePassword()">
+      <mat-icon>lock_reset</mat-icon>
+      <span>Change Password</span>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <app-profile-loading-state *ngIf="profileStore.loading()"></app-profile-loading-state>
+
+  <ng-container *ngIf="!profileStore.loading()">
+    <app-profile-empty-state *ngIf="!profileStore.profile()"></app-profile-empty-state>
+
+    <div *ngIf="profileStore.profile()" class="profile-layout-grid">
+      <!-- Left Column: Avatar Header & Quick Statistics -->
+      <div class="left-column">
+        <app-profile-card [profile]="profileStore.profile()"></app-profile-card>
+      </div>
+
+      <!-- Right Column: Stats Summary, Info, Preferences & Logout -->
+      <div class="right-column">
+        <app-profile-statistics-summary
+          [statistics]="profileStore.statistics()"
+        ></app-profile-statistics-summary>
+
+        <app-profile-information
+          [profile]="profileStore.profile()"
+          [updating]="profileStore.updating()"
+          (updateProfile)="onUpdateProfile($event)"
+        ></app-profile-information>
+
+        <app-profile-preferences-panel
+          [preferences]="profileStore.preferences()"
+          (updatePreferences)="onUpdatePreferences($event)"
+        ></app-profile-preferences-panel>
+
+        <app-profile-logout-card></app-profile-logout-card>
+      </div>
+    </div>
+  </ng-container>
+</div>

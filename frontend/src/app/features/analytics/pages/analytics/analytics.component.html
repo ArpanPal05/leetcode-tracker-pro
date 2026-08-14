@@ -1,0 +1,72 @@
+<div class="analytics-page">
+  <div class="page-header">
+    <h1>Detailed Performance Analytics</h1>
+    <p>In-depth historical trends, solve speed statistics, and topic category distribution.</p>
+  </div>
+
+  <!-- Loading State -->
+  <app-analytics-loading-state *ngIf="analyticsStore.loading()"></app-analytics-loading-state>
+
+  <ng-container *ngIf="!analyticsStore.loading()">
+    <!-- Empty State -->
+    <app-analytics-empty-state
+      *ngIf="analyticsStore.summary()?.total_tracked === 0"
+    ></app-analytics-empty-state>
+
+    <ng-container *ngIf="analyticsStore.summary()?.total_tracked !== 0">
+      <!-- Section 1: Overview Cards -->
+      <app-analytics-overview-cards
+        [summary]="analyticsStore.summary()"
+        [streak]="analyticsStore.streak()"
+        [activity]="analyticsStore.activity()"
+      ></app-analytics-overview-cards>
+
+      <!-- Grid 1: Difficulty & Language Charts -->
+      <div class="analytics-grid">
+        <app-difficulty-chart
+          [difficulty]="analyticsStore.distributions()?.difficulty ?? null"
+        ></app-difficulty-chart>
+
+        <app-language-chart
+          [languages]="analyticsStore.distributions()?.languages ?? null"
+        ></app-language-chart>
+      </div>
+
+      <!-- Grid 2: Monthly & Weekly Progress Line & Bar Charts -->
+      <div class="analytics-grid">
+        <app-monthly-progress-chart
+          [data]="analyticsStore.monthlyProgress()"
+        ></app-monthly-progress-chart>
+
+        <app-weekly-progress-chart
+          [data]="analyticsStore.weeklyProgress()"
+        ></app-weekly-progress-chart>
+      </div>
+
+      <!-- Grid 3: Topic Category Distribution & Streak Summary -->
+      <div class="analytics-grid">
+        <app-topic-distribution-chart
+          [data]="analyticsStore.topicDistribution()"
+        ></app-topic-distribution-chart>
+
+        <app-analytics-streak-summary
+          [streak]="analyticsStore.streak()"
+        ></app-analytics-streak-summary>
+      </div>
+
+      <!-- Section 7: Solve Time Analysis -->
+      <div class="full-width-row">
+        <app-solve-time-chart
+          [activity]="analyticsStore.activity()"
+        ></app-solve-time-chart>
+      </div>
+
+      <!-- Section 9: Heatmap -->
+      <div class="full-width-row">
+        <app-heatmap
+          [data]="analyticsStore.heatmap()"
+        ></app-heatmap>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

@@ -1,0 +1,11 @@
+<div class="track-page-container">
+  <div *ngIf="trackerStore.error()" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ trackerStore.error() }}</span>
+  </div>
+
+  <app-track-form
+    [loading]="trackerStore.loading()"
+    (submitForm)="onTrackSubmit($event)"
+  ></app-track-form>
+</div>

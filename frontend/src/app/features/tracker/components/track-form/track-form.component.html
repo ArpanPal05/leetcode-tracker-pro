@@ -1,0 +1,117 @@
+<mat-card class="track-form-card">
+  <div class="form-header">
+    <h2>Track a LeetCode Problem</h2>
+    <p>Paste a LeetCode problem URL to automatically import metadata and track your progress.</p>
+  </div>
+
+  <form [formGroup]="trackForm" (ngSubmit)="onSubmit()" class="track-form">
+    <!-- LeetCode URL -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>LeetCode Problem URL *</mat-label>
+      <input
+        matInput
+        type="url"
+        formControlName="leetcode_url"
+        placeholder="https://leetcode.com/problems/two-sum/"
+      />
+      <mat-icon matSuffix>link</mat-icon>
+      <mat-error *ngIf="trackForm.get('leetcode_url')?.hasError('required')">
+        LeetCode URL is required.
+      </mat-error>
+      <mat-error *ngIf="trackForm.get('leetcode_url')?.hasError('invalidLeetCodeUrl')">
+        Must be a valid LeetCode problem URL (e.g. https://leetcode.com/problems/two-sum/).
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Status & Language Row -->
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Status *</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
+            {{ opt.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="trackForm.get('status')?.hasError('required')">
+          Status is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Programming Language</mat-label>
+        <mat-select formControlName="language">
+          <mat-option *ngFor="let lang of languageOptions" [value]="lang">
+            {{ lang }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Time Taken & Solution URL Row -->
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Time Taken (Minutes)</mat-label>
+        <input
+          matInput
+          type="number"
+          min="0"
+          formControlName="time_taken_minutes"
+          placeholder="e.g. 25"
+        />
+        <mat-icon matSuffix>timer</mat-icon>
+        <mat-error *ngIf="trackForm.get('time_taken_minutes')?.hasError('min')">
+          Time taken must be a non-negative number.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Solution GitHub / Repository URL</mat-label>
+        <input
+          matInput
+          type="url"
+          formControlName="solution_url"
+          placeholder="https://github.com/..."
+        />
+        <mat-icon matSuffix>code</mat-icon>
+        <mat-error *ngIf="trackForm.get('solution_url')?.hasError('pattern')">
+          Please enter a valid URL starting with http:// or https://.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Favorite Toggle -->
+    <div class="favorite-toggle-container">
+      <mat-slide-toggle formControlName="favorite" color="primary">
+        Add to Favorites
+      </mat-slide-toggle>
+    </div>
+
+    <!-- Notes Textarea -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Personal Notes & Key Takeaways</mat-label>
+      <textarea
+        matInput
+        rows="4"
+        formControlName="notes"
+        placeholder="Write down space/time complexity analysis, key intuition, or edge cases..."
+      ></textarea>
+      <mat-error *ngIf="trackForm.get('notes')?.hasError('maxlength')">
+        Notes cannot exceed 5000 characters.
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Submit Button -->
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      class="submit-btn full-width"
+      [disabled]="trackForm.invalid || loading"
+    >
+      <div class="button-content">
+        <mat-spinner *ngIf="loading" diameter="20" color="accent"></mat-spinner>
+        <span>{{ loading ? 'Importing & Tracking...' : 'Track Problem' }}</span>
+      </div>
+    </button>
+  </form>
+</mat-card>
