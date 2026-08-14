@@ -7,10 +7,6 @@ from app.shared.enums import Difficulty, ProblemStatus
 
 
 class DashboardRepository:
-    """
-    Read-only repository for executing SQL aggregation queries
-    for the dashboard analytics feature.
-    """
 
     def get_summary_raw(self, db: Session, user_id: int) -> dict:
         statement = (
@@ -92,7 +88,6 @@ class DashboardRepository:
         }
 
     def get_distributions_raw(self, db: Session, user_id: int) -> dict:
-        # 1. Difficulty distribution via JOIN with problems
         diff_stmt = (
             select(
                 Problem.difficulty,
@@ -115,7 +110,6 @@ class DashboardRepository:
             if key in diff_counts:
                 diff_counts[key] = row.count
 
-        # 2. Languages distribution GROUP BY language
         lang_stmt = (
             select(
                 UserProblem.language,
@@ -142,7 +136,6 @@ class DashboardRepository:
         }
 
     def get_activity_raw(self, db: Session, user_id: int) -> dict:
-        # 1. Recent 10 tracked problems (latest first)
         recent_stmt = (
             select(UserProblem)
             .options(joinedload(UserProblem.problem))
@@ -176,7 +169,6 @@ class DashboardRepository:
             for up in recent_rows
         ]
 
-        # 2. Time statistics via SQL aggregation
         time_stmt = (
             select(
                 func.coalesce(

@@ -19,11 +19,6 @@ from app.features.dashboard.schemas import (
 def calculate_streaks(
     solved_dates: list[date], current_date: date | None = None
 ) -> tuple[int, int]:
-    """
-    Given a list of distinct solved calendar dates, calculates:
-    - current_streak: consecutive solved days up to today or yesterday
-    - longest_streak: maximum consecutive solved days in history
-    """
     if not solved_dates:
         return 0, 0
 
@@ -32,7 +27,6 @@ def calculate_streaks(
 
     yesterday = current_date - timedelta(days=1)
 
-    # Ensure sorted descending
     sorted_dates = sorted(solved_dates, reverse=True)
 
     # 1. Calculate longest streak across entire history
