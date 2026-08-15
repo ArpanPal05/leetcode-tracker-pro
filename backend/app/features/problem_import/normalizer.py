@@ -2,8 +2,12 @@ from dataclasses import dataclass, field
 import re
 
 from app.features.problem_import.client import LeetCodeProblemData, TopicTag
+from app.features.problem_import.clients.codechef import CodeChefProblemData
 from app.features.problem_import.clients.codeforces import CodeforcesProblemData
-from app.features.problem_import.difficulty import map_codeforces_rating_to_difficulty
+from app.features.problem_import.difficulty import (
+    map_codechef_rating_to_difficulty,
+    map_codeforces_rating_to_difficulty,
+)
 from app.shared.enums import Difficulty, Platform
 
 
@@ -72,3 +76,28 @@ def normalize_codeforces(data: CodeforcesProblemData) -> CommonProblemData:
         acceptance_rate=None,
         topic_tags=topic_tags,
     )
+
+
+def normalize_codechef(data: CodeChefProblemData) -> CommonProblemData:
+    difficulty_enum = map_codechef_rating_to_difficulty(data.rating)
+    external_id = data.external_id
+
+    topic_tags = [
+        TopicTag(name=tag, slug=slugify_tag(tag))
+        for tag in data.tags
+        if tag.strip()
+    ]
+
+    return CommonProblemData(
+        platform=Platform.CODECHEF,
+        external_id=external_id,
+        title=data.title,
+        difficulty=difficulty_enum,
+        platform_rating=data.rating,
+        slug=None,
+        frontend_question_id=None,
+        is_premium=False,
+        acceptance_rate=None,
+        topic_tags=topic_tags,
+    )
+

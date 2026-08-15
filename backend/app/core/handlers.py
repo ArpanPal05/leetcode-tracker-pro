@@ -6,6 +6,9 @@ from app.features.auth.exceptions import (
     InvalidCredentials,
 )
 from app.features.problem_import.exceptions import (
+    CodeChefParsingError,
+    CodeChefProblemNotFound,
+    CodeChefUnavailable,
     CodeforcesProblemNotFound,
     CodeforcesUnavailable,
     InvalidCodeforcesURL,
@@ -133,3 +136,34 @@ def register_exception_handlers(app: FastAPI):
                 "message": str(exc) or "Problem not found on Codeforces.",
             },
         )
+
+    @app.exception_handler(CodeChefUnavailable)
+    async def codechef_unavailable_handler(request, exc):
+        return JSONResponse(
+            status_code=503,
+            content={
+                "success": False,
+                "message": "CodeChef service is currently unavailable.",
+            },
+        )
+
+    @app.exception_handler(CodeChefProblemNotFound)
+    async def codechef_problem_not_found_handler(request, exc):
+        return JSONResponse(
+            status_code=404,
+            content={
+                "success": False,
+                "message": str(exc) or "Problem not found on CodeChef.",
+            },
+        )
+
+    @app.exception_handler(CodeChefParsingError)
+    async def codechef_parsing_error_handler(request, exc):
+        return JSONResponse(
+            status_code=502,
+            content={
+                "success": False,
+                "message": str(exc) or "Failed to parse problem metadata from CodeChef.",
+            },
+        )
+

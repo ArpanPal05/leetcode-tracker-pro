@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from app.db.base import Base
 from app.features.problem_import.associations import problem_topics  # noqa: F401
 from app.features.problem_import.client import LeetCodeProblemData, TopicTag
+from app.features.problem_import.clients.codechef import CodeChefProblemData
 from app.features.problem_import.clients.codeforces import CodeforcesProblemData
 from app.features.problem_import.models import Topic  # noqa: F401
 from app.features.problem_import.repository import ProblemImportRepository, TopicRepository
@@ -30,6 +31,51 @@ class TestMultiPlatformImport(unittest.TestCase):
         self.db.close()
         Base.metadata.drop_all(bind=self.engine)
 
+    def test_import_codechef_problem_success(self):
+        mock_cc_client = MagicMock()
+        mock_cc_client.fetch_problem.return_value = CodeChefProblemData(
+            external_id="START01",
+            title="Number Mirror",
+            source_url="https://www.codechef.com/problems/START01",
+            rating=None,
+            tags=[],
+        )
+
+        mock_lc_client = MagicMock()
+        mock_cf_client = MagicMock()
+
+        import_service = ProblemImportService(
+            problem_repository=ProblemRepository(),
+            topic_repository=TopicRepository(),
+            problem_import_repository=ProblemImportRepository(),
+            leetcode_client=mock_lc_client,
+            codeforces_client=mock_cf_client,
+            codechef_client=mock_cc_client,
+        )
+
+        resolver = ProblemResolverService(
+            problem_repository=ProblemRepository(),
+            problem_import_service=import_service,
+        )
+
+        # 1. Resolve first time (imports from CodeChef)
+        url = "https://www.codechef.com/problems/START01"
+        problem = resolver.resolve_problem(self.db, url)
+
+        self.assertIsNotNone(problem)
+        self.assertEqual(problem.platform, Platform.CODECHEF)
+        self.assertEqual(problem.external_id, "START01")
+        self.assertEqual(problem.title, "Number Mirror")
+        self.assertEqual(problem.difficulty, Difficulty.MEDIUM)
+        self.assertIsNone(problem.platform_rating)
+        mock_cc_client.fetch_problem.assert_called_once_with("START01")
+
+        # 2. Resolve second time (cache hit, client must NOT be called)
+        mock_cc_client.fetch_problem.reset_mock()
+        second_problem = resolver.resolve_problem(self.db, url)
+        self.assertEqual(second_problem.id, problem.id)
+        mock_cc_client.fetch_problem.assert_not_called()
+
     def test_import_codeforces_problem_success(self):
         mock_cf_client = MagicMock()
         mock_cf_client.fetch_problem.return_value = CodeforcesProblemData(
@@ -41,6 +87,7 @@ class TestMultiPlatformImport(unittest.TestCase):
         )
 
         mock_lc_client = MagicMock()
+        mock_cc_client = MagicMock()
 
         import_service = ProblemImportService(
             problem_repository=ProblemRepository(),
@@ -48,6 +95,7 @@ class TestMultiPlatformImport(unittest.TestCase):
             problem_import_repository=ProblemImportRepository(),
             leetcode_client=mock_lc_client,
             codeforces_client=mock_cf_client,
+            codechef_client=mock_cc_client,
         )
 
         resolver = ProblemResolverService(
@@ -87,6 +135,7 @@ class TestMultiPlatformImport(unittest.TestCase):
         )
 
         mock_cf_client = MagicMock()
+        mock_cc_client = MagicMock()
 
         import_service = ProblemImportService(
             problem_repository=ProblemRepository(),
@@ -94,6 +143,7 @@ class TestMultiPlatformImport(unittest.TestCase):
             problem_import_repository=ProblemImportRepository(),
             leetcode_client=mock_lc_client,
             codeforces_client=mock_cf_client,
+            codechef_client=mock_cc_client,
         )
 
         resolver = ProblemResolverService(
@@ -123,3 +173,4 @@ class TestMultiPlatformImport(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

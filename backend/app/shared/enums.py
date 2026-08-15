@@ -4,6 +4,7 @@ from enum import Enum
 class Platform(str, Enum):
     LEETCODE = "LeetCode"
     CODEFORCES = "Codeforces"
+    CODECHEF = "CodeChef"
 
 
 class Difficulty(str, Enum):

@@ -5,12 +5,17 @@ from app.features.problem_import.client import (
     LeetCodeClient,
     get_leetcode_client,
 )
+from app.features.problem_import.clients.codechef import (
+    CodeChefClient,
+    get_codechef_client,
+)
 from app.features.problem_import.clients.codeforces import (
     CodeforcesClient,
     get_codeforces_client,
 )
 from app.features.problem_import.normalizer import (
     CommonProblemData,
+    normalize_codechef,
     normalize_codeforces,
     normalize_leetcode,
 )
@@ -30,7 +35,7 @@ from app.features.problems.repository import (
 class ProblemImportService:
     """
     Service responsible for fetching problem metadata from supported platforms
-    (LeetCode, Codeforces) and persisting Problem and Topic entities.
+    (LeetCode, Codeforces, CodeChef) and persisting Problem and Topic entities.
     Knows nothing about users or tracking.
     """
 
@@ -41,6 +46,7 @@ class ProblemImportService:
         problem_import_repository: ProblemImportRepository | None = None,
         leetcode_client: LeetCodeClient | None = None,
         codeforces_client: CodeforcesClient | None = None,
+        codechef_client: CodeChefClient | None = None,
     ):
         self.problem_repository = (
             problem_repository
@@ -66,6 +72,11 @@ class ProblemImportService:
             codeforces_client
             if codeforces_client is not None
             else get_codeforces_client()
+        )
+        self.codechef_client = (
+            codechef_client
+            if codechef_client is not None
+            else get_codechef_client()
         )
 
     def import_common_problem(self, db: Session, common_data: CommonProblemData) -> Problem:
@@ -108,6 +119,16 @@ class ProblemImportService:
         common_data = normalize_codeforces(raw_data)
         return self.import_common_problem(db, common_data)
 
+    def import_codechef_problem(
+        self, db: Session, problem_code: str
+    ) -> Problem:
+        """
+        Fetches metadata from CodeChef by problem code, normalizes, and persists.
+        """
+        raw_data = self.codechef_client.fetch_problem(problem_code)
+        common_data = normalize_codechef(raw_data)
+        return self.import_common_problem(db, common_data)
+
 
 def get_problem_import_service(
     problem_repository: ProblemRepository = Depends(get_problem_repository),
@@ -115,6 +136,7 @@ def get_problem_import_service(
     problem_import_repository: ProblemImportRepository = Depends(get_problem_import_repository),
     leetcode_client: LeetCodeClient = Depends(get_leetcode_client),
     codeforces_client: CodeforcesClient = Depends(get_codeforces_client),
+    codechef_client: CodeChefClient = Depends(get_codechef_client),
 ) -> ProblemImportService:
     return ProblemImportService(
         problem_repository=problem_repository,
@@ -122,4 +144,6 @@ def get_problem_import_service(
         problem_import_repository=problem_import_repository,
         leetcode_client=leetcode_client,
         codeforces_client=codeforces_client,
+        codechef_client=codechef_client,
     )
+

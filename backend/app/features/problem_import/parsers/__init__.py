@@ -1,3 +1,6 @@
+from app.features.problem_import.parsers.codechef import (
+    extract_codechef_problem_code,
+)
 from app.features.problem_import.parsers.codeforces import (
     CodeforcesURLIdentifier,
     extract_codeforces_identifier,
@@ -9,5 +12,6 @@ __all__ = [
     "detect_platform",
     "extract_slug_from_url",
     "extract_codeforces_identifier",
+    "extract_codechef_problem_code",
     "CodeforcesURLIdentifier",
 ]

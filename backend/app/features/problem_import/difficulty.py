@@ -18,3 +18,23 @@ def map_codeforces_rating_to_difficulty(rating: int | None) -> Difficulty:
         return Difficulty.MEDIUM
     else:
         return Difficulty.HARD
+
+
+def map_codechef_rating_to_difficulty(rating: int | None) -> Difficulty:
+    """
+    Centralized mapping of CodeChef numeric ratings to internal standard Difficulty.
+    - rating <= 1200: EASY
+    - 1201 <= rating <= 1800: MEDIUM
+    - rating > 1800: HARD
+    - None (unrated / missing rating): MEDIUM
+    """
+    if rating is None:
+        return Difficulty.MEDIUM
+
+    if rating <= 1200:
+        return Difficulty.EASY
+    elif rating <= 1800:
+        return Difficulty.MEDIUM
+    else:
+        return Difficulty.HARD
+

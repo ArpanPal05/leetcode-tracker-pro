@@ -36,3 +36,24 @@ class CodeforcesUnavailable(Exception):
 class CodeforcesProblemNotFound(Exception):
     """Raised when Codeforces returns no problem data for the given contest and index."""
     pass
+
+
+class InvalidCodeChefURL(InvalidProblemURL):
+    """Raised when the provided URL is not a valid CodeChef problem URL."""
+    pass
+
+
+class CodeChefUnavailable(Exception):
+    """Raised when CodeChef page cannot be reached or returns an unexpected HTTP response."""
+    pass
+
+
+class CodeChefProblemNotFound(Exception):
+    """Raised when CodeChef returns a 404 or no problem data for the given problem code."""
+    pass
+
+
+class CodeChefParsingError(Exception):
+    """Raised when CodeChef problem page HTML cannot be parsed."""
+    pass
+

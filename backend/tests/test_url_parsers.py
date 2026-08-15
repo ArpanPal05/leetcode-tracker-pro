@@ -1,8 +1,12 @@
 import unittest
 
 from app.features.problem_import.exceptions import (
+    InvalidCodeChefURL,
     InvalidCodeforcesURL,
     InvalidLeetCodeURL,
+)
+from app.features.problem_import.parsers.codechef import (
+    extract_codechef_problem_code,
 )
 from app.features.problem_import.parsers.codeforces import (
     extract_codeforces_identifier,
@@ -77,5 +81,36 @@ class TestCodeforcesURLParser(unittest.TestCase):
                 extract_codeforces_identifier(url)
 
 
+class TestCodeChefURLParser(unittest.TestCase):
+
+    def test_valid_codechef_url(self):
+        url = "https://www.codechef.com/problems/START01"
+        self.assertEqual(extract_codechef_problem_code(url), "START01")
+
+    def test_valid_codechef_url_with_trailing_slash(self):
+        url = "https://codechef.com/problems/FLOW001/"
+        self.assertEqual(extract_codechef_problem_code(url), "FLOW001")
+
+    def test_valid_codechef_url_with_subpath(self):
+        url = "https://www.codechef.com/problems/COCONUT/description"
+        self.assertEqual(extract_codechef_problem_code(url), "COCONUT")
+
+    def test_invalid_codechef_urls(self):
+        invalid_urls = [
+            "",
+            "https://www.codechef.com",
+            "https://www.codechef.com/",
+            "https://www.codechef.com/problems/",
+            "https://www.codechef.com/contests/",
+            "https://www.codechef.com/practice",
+            "https://www.google.com/problems/START01",
+            "not a url",
+        ]
+        for url in invalid_urls:
+            with self.assertRaises(InvalidCodeChefURL):
+                extract_codechef_problem_code(url)
+
+
 if __name__ == "__main__":
     unittest.main()
+

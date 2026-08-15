@@ -18,10 +18,13 @@ class TestPlatformDetector(unittest.TestCase):
         self.assertEqual(detect_platform("https://codeforces.com/problemset/problem/4/A"), Platform.CODEFORCES)
         self.assertEqual(detect_platform("http://www.codeforces.com/contest/1800/problem/D"), Platform.CODEFORCES)
 
+    def test_detect_codechef(self):
+        self.assertEqual(detect_platform("https://www.codechef.com/problems/START01"), Platform.CODECHEF)
+        self.assertEqual(detect_platform("http://codechef.com/problems/FLOW001/"), Platform.CODECHEF)
+
     def test_detect_unsupported_platform(self):
         unsupported_urls = [
             "https://hackerrank.com/challenges/simple-array-sum",
-            "https://codechef.com/problems/FLOW001",
             "https://geeksforgeeks.org/problems/two-sum",
             "https://google.com",
         ]

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.features.problem_import.parsers import (
     detect_platform,
+    extract_codechef_problem_code,
     extract_codeforces_identifier,
     extract_slug_from_url,
 )
@@ -20,7 +21,7 @@ from app.shared.enums import Platform
 
 class ProblemResolverService:
     """
-    Service responsible for obtaining a Problem entity given a problem URL (LeetCode or Codeforces).
+    Service responsible for obtaining a Problem entity given a problem URL (LeetCode, Codeforces, or CodeChef).
     Checks the local database cache first by platform and identifier;
     if missing, delegates to ProblemImportService to fetch, normalize, and persist.
     """
@@ -43,7 +44,7 @@ class ProblemResolverService:
 
     def resolve_problem(self, db: Session, url: str) -> Problem:
         """
-        Given a LeetCode or Codeforces problem URL, detects platform,
+        Given a LeetCode, Codeforces, or CodeChef problem URL, detects platform,
         checks database cache, or imports if missing. Returns the Problem entity.
         """
         platform = detect_platform(url)
@@ -66,6 +67,17 @@ class ProblemResolverService:
                 db, identifier.contest_id, identifier.problem_index
             )
 
+        elif platform == Platform.CODECHEF:
+            problem_code = extract_codechef_problem_code(url)
+            existing = self.problem_repository.get_by_platform_and_external_id(
+                db, Platform.CODECHEF, problem_code
+            )
+            if existing is not None:
+                return existing
+            return self.problem_import_service.import_codechef_problem(
+                db, problem_code
+            )
+
         raise ValueError(f"Unsupported platform: {platform}")
 
 
@@ -77,3 +89,4 @@ def get_problem_resolver_service(
         problem_repository=problem_repository,
         problem_import_service=problem_import_service,
     )
+

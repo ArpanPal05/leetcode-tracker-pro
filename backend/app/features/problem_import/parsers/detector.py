@@ -31,6 +31,9 @@ def detect_platform(url: str) -> Platform:
     if netloc == "codeforces.com" or netloc.endswith(".codeforces.com"):
         return Platform.CODEFORCES
 
+    if netloc == "codechef.com" or netloc.endswith(".codechef.com"):
+        return Platform.CODECHEF
+
     raise UnsupportedPlatform(
-        f"Unsupported platform domain: {parsed.netloc!r}. Supported platforms: LeetCode, Codeforces."
+        f"Unsupported platform domain: {parsed.netloc!r}. Supported platforms: LeetCode, Codeforces, CodeChef."
     )

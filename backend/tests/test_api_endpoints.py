@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.db.base import Base
+from app.features.problem_import.clients.codechef import CodeChefProblemData
 from app.features.problem_import.clients.codeforces import CodeforcesProblemData
 from app.features.problem_import.normalizer import normalize_codeforces
 from app.features.problem_import.repository import ProblemImportRepository, TopicRepository
@@ -39,6 +40,7 @@ class TestMultiPlatformAPIEndpoints(unittest.TestCase):
 
         self.mock_cf_client = MagicMock()
         self.mock_lc_client = MagicMock()
+        self.mock_cc_client = MagicMock()
 
         self.import_service = ProblemImportService(
             problem_repository=ProblemRepository(),
@@ -46,6 +48,7 @@ class TestMultiPlatformAPIEndpoints(unittest.TestCase):
             problem_import_repository=ProblemImportRepository(),
             leetcode_client=self.mock_lc_client,
             codeforces_client=self.mock_cf_client,
+            codechef_client=self.mock_cc_client,
         )
 
         self.resolver = ProblemResolverService(
@@ -124,6 +127,39 @@ class TestMultiPlatformAPIEndpoints(unittest.TestCase):
         self.assertEqual(resp.data.tracked.problem.external_id, "158B")
         self.assertEqual(resp.data.tracked.problem.platform_rating, 1100)
 
+    def test_import_codechef_via_generic_import_endpoint(self):
+        self.mock_cc_client.fetch_problem.return_value = CodeChefProblemData(
+            external_id="START01",
+            title="Number Mirror",
+            source_url="https://www.codechef.com/problems/START01",
+            rating=None,
+            tags=[],
+        )
+
+        req = ProblemImportRequest(
+            problem_url="https://www.codechef.com/problems/START01",
+            status=ProblemStatus.SOLVED,
+            language="Python",
+            notes="Basic starter problem",
+            time_taken_minutes=2,
+            favorite=False,
+        )
+
+        resp = import_problem(
+            request=req,
+            db=self.db,
+            current_user=self.test_user,
+            resolver=self.resolver,
+            user_problem_service=self.user_problem_service,
+        )
+
+        self.assertTrue(resp.success)
+        self.assertEqual(resp.data.tracked.problem.title, "Number Mirror")
+        self.assertEqual(resp.data.tracked.problem.platform, "CodeChef")
+        self.assertEqual(resp.data.tracked.problem.external_id, "START01")
+        self.assertEqual(resp.data.tracked.status, ProblemStatus.SOLVED)
+
 
 if __name__ == "__main__":
     unittest.main()
+
