@@ -34,7 +34,7 @@ import { ThemeService } from '../../services/theme.service';
 
         <div class="brand" routerLink="/dashboard">
           <mat-icon class="brand-icon">code</mat-icon>
-          <span class="brand-title">LeetCode Tracker Pro</span>
+          <span class="brand-title">DSA Tracker Pro</span>
         </div>
       </div>
 

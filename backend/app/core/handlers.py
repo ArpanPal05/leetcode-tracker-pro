@@ -6,9 +6,14 @@ from app.features.auth.exceptions import (
     InvalidCredentials,
 )
 from app.features.problem_import.exceptions import (
+    CodeforcesProblemNotFound,
+    CodeforcesUnavailable,
+    InvalidCodeforcesURL,
     InvalidLeetCodeURL,
+    InvalidProblemURL,
     LeetCodeProblemNotFound,
     LeetCodeUnavailable,
+    UnsupportedPlatform,
 )
 from app.features.problems.exceptions import ProblemNotFound
 from app.features.user_problems.exceptions import (
@@ -69,13 +74,23 @@ def register_exception_handlers(app: FastAPI):
             },
         )
 
-    @app.exception_handler(InvalidLeetCodeURL)
-    async def invalid_leetcode_url_handler(request, exc):
+    @app.exception_handler(InvalidProblemURL)
+    async def invalid_problem_url_handler(request, exc):
         return JSONResponse(
             status_code=400,
             content={
                 "success": False,
-                "message": str(exc) or "Invalid LeetCode URL provided.",
+                "message": str(exc) or "Invalid problem URL provided.",
+            },
+        )
+
+    @app.exception_handler(UnsupportedPlatform)
+    async def unsupported_platform_handler(request, exc):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "message": str(exc) or "Unsupported coding platform.",
             },
         )
 
@@ -96,5 +111,25 @@ def register_exception_handlers(app: FastAPI):
             content={
                 "success": False,
                 "message": str(exc) or "Problem not found on LeetCode.",
+            },
+        )
+
+    @app.exception_handler(CodeforcesUnavailable)
+    async def codeforces_unavailable_handler(request, exc):
+        return JSONResponse(
+            status_code=503,
+            content={
+                "success": False,
+                "message": "Codeforces service is currently unavailable.",
+            },
+        )
+
+    @app.exception_handler(CodeforcesProblemNotFound)
+    async def codeforces_problem_not_found_handler(request, exc):
+        return JSONResponse(
+            status_code=404,
+            content={
+                "success": False,
+                "message": str(exc) or "Problem not found on Codeforces.",
             },
         )

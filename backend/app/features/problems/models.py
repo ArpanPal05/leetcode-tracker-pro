@@ -1,29 +1,47 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Float, String
+from sqlalchemy import Boolean, DateTime, Float, Integer, String, UniqueConstraint
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.features.problem_import.associations import problem_topics
-from app.shared.enums import Difficulty
+from app.shared.enums import Difficulty, Platform
 
 
 class Problem(Base):
     __tablename__ = "problems"
 
+    __table_args__ = (
+        UniqueConstraint(
+            "platform",
+            "external_id",
+            name="uq_platform_external_id",
+        ),
+    )
+
     id: Mapped[int] = mapped_column(primary_key=True)
 
     title: Mapped[str] = mapped_column(
         String(255),
-        unique=True,
         nullable=False,
     )
 
-    slug: Mapped[str] = mapped_column(
-        String(255),
-        unique=True,
+    platform: Mapped[Platform] = mapped_column(
+        SqlEnum(Platform),
+        default=Platform.LEETCODE,
         nullable=False,
+    )
+
+    external_id: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    slug: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+        default=None,
     )
 
     difficulty: Mapped[Difficulty] = mapped_column(
@@ -31,9 +49,10 @@ class Problem(Base):
         nullable=False,
     )
 
-    platform: Mapped[str] = mapped_column(
-        String(50),
-        default="LeetCode",
+    platform_rating: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+        default=None,
     )
 
     frontend_question_id: Mapped[str | None] = mapped_column(

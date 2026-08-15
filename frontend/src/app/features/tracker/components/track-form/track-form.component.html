@@ -1,25 +1,25 @@
 <mat-card class="track-form-card">
   <div class="form-header">
-    <h2>Track a LeetCode Problem</h2>
-    <p>Paste a LeetCode problem URL to automatically import metadata and track your progress.</p>
+    <h2>Track a Problem</h2>
+    <p>Paste a LeetCode or Codeforces problem URL to automatically import metadata and track your progress.</p>
   </div>
 
   <form [formGroup]="trackForm" (ngSubmit)="onSubmit()" class="track-form">
-    <!-- LeetCode URL -->
+    <!-- Problem URL -->
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>LeetCode Problem URL *</mat-label>
+      <mat-label>Problem URL *</mat-label>
       <input
         matInput
         type="url"
         formControlName="leetcode_url"
-        placeholder="https://leetcode.com/problems/two-sum/"
+        placeholder="Paste a LeetCode or Codeforces problem URL"
       />
       <mat-icon matSuffix>link</mat-icon>
       <mat-error *ngIf="trackForm.get('leetcode_url')?.hasError('required')">
-        LeetCode URL is required.
+        Problem URL is required.
       </mat-error>
-      <mat-error *ngIf="trackForm.get('leetcode_url')?.hasError('invalidLeetCodeUrl')">
-        Must be a valid LeetCode problem URL (e.g. https://leetcode.com/problems/two-sum/).
+      <mat-error *ngIf="trackForm.get('leetcode_url')?.hasError('invalidProblemUrl')">
+        Must be a valid supported problem URL from LeetCode or Codeforces.
       </mat-error>
     </mat-form-field>
 

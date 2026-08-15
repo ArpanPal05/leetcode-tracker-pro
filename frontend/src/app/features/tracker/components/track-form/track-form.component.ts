@@ -18,13 +18,20 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ProblemStatus, UserProblemTrackRequest } from '../../models/tracker.models';
 
-export function leetcodeUrlValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value ? String(control.value).trim() : '';
-  if (!value) return null;
+const LEETCODE_PATTERN = /^https:\/\/(www\.)?leetcode\.com\/problems\/[a-zA-Z0-9_-]+(\/.*)?$/;
+const CODEFORCES_PATTERN = /^https:\/\/(www\.)?codeforces\.com\/(problemset\/problem|contest)\/\d+\/[a-zA-Z0-9]+(\/.*)?$/;
 
-  if (!value.startsWith('https://leetcode.com/problems/')) {
-    return { invalidLeetCodeUrl: true };
+export function problemUrlValidator(control: AbstractControl): ValidationErrors | null {
+  const raw = control.value ? String(control.value).trim() : '';
+  if (!raw) return null;
+
+  const isLeetCode = LEETCODE_PATTERN.test(raw);
+  const isCodeforces = CODEFORCES_PATTERN.test(raw);
+
+  if (!isLeetCode && !isCodeforces) {
+    return { invalidProblemUrl: true };
   }
+
   return null;
 }
 
@@ -75,7 +82,7 @@ export class TrackFormComponent {
   ];
 
   trackForm: FormGroup = this.fb.group({
-    leetcode_url: ['', [Validators.required, leetcodeUrlValidator]],
+    leetcode_url: ['', [Validators.required, problemUrlValidator]],
     status: [ProblemStatus.SOLVED, [Validators.required]],
     language: ['Python'],
     time_taken_minutes: [null, [Validators.min(0)]],

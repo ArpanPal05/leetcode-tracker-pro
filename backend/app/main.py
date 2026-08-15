@@ -17,7 +17,7 @@ from app.features.users.models import User
 setup_logging()
 
 app = FastAPI(
-    title="LeetCode Tracker Pro API",
+    title="DSA Tracker Pro API",
     version="1.0.0",
 )
 

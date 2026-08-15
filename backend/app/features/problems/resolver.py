@@ -1,8 +1,11 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.features.problem_import.client import extract_slug_from_url
-from app.features.problem_import.exceptions import InvalidLeetCodeURL
+from app.features.problem_import.parsers import (
+    detect_platform,
+    extract_codeforces_identifier,
+    extract_slug_from_url,
+)
 from app.features.problem_import.service import (
     ProblemImportService,
     get_problem_import_service,
@@ -12,12 +15,14 @@ from app.features.problems.repository import (
     ProblemRepository,
     get_problem_repository,
 )
+from app.shared.enums import Platform
 
 
 class ProblemResolverService:
     """
-    Service responsible ONLY for obtaining a Problem entity given a LeetCode URL.
-    Checks the local database cache first; if missing, delegates to ProblemImportService.
+    Service responsible for obtaining a Problem entity given a problem URL (LeetCode or Codeforces).
+    Checks the local database cache first by platform and identifier;
+    if missing, delegates to ProblemImportService to fetch, normalize, and persist.
     """
 
     def __init__(
@@ -27,31 +32,41 @@ class ProblemResolverService:
     ):
         self.problem_repository = (
             problem_repository
-            if isinstance(problem_repository, ProblemRepository)
+            if problem_repository is not None
             else get_problem_repository()
         )
         self.problem_import_service = (
             problem_import_service
-            if isinstance(problem_import_service, ProblemImportService)
+            if problem_import_service is not None
             else get_problem_import_service()
         )
 
-    def resolve_problem(self, db: Session, leetcode_url: str) -> Problem:
+    def resolve_problem(self, db: Session, url: str) -> Problem:
         """
-        Given a LeetCode URL, extracts slug, checks database cache,
-        or imports from LeetCode if missing. Returns the Problem entity.
+        Given a LeetCode or Codeforces problem URL, detects platform,
+        checks database cache, or imports if missing. Returns the Problem entity.
         """
-        try:
-            slug = extract_slug_from_url(leetcode_url)
-        except ValueError as exc:
-            raise InvalidLeetCodeURL(str(exc)) from exc
+        platform = detect_platform(url)
 
-        existing_problem = self.problem_repository.get_by_slug(db, slug)
+        if platform == Platform.LEETCODE:
+            slug = extract_slug_from_url(url)
+            existing = self.problem_repository.get_by_slug(db, slug)
+            if existing is not None:
+                return existing
+            return self.problem_import_service.import_problem_by_slug(db, slug)
 
-        if existing_problem is not None:
-            return existing_problem
+        elif platform == Platform.CODEFORCES:
+            identifier = extract_codeforces_identifier(url)
+            existing = self.problem_repository.get_by_platform_and_external_id(
+                db, Platform.CODEFORCES, identifier.external_id
+            )
+            if existing is not None:
+                return existing
+            return self.problem_import_service.import_codeforces_problem(
+                db, identifier.contest_id, identifier.problem_index
+            )
 
-        return self.problem_import_service.import_problem_by_slug(db, slug)
+        raise ValueError(f"Unsupported platform: {platform}")
 
 
 def get_problem_resolver_service(

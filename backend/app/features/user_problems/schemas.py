@@ -2,13 +2,14 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.features.problem_import.parsers.detector import detect_platform
 from app.features.problems.schemas import ProblemResponse
 from app.shared.enums import ProblemStatus
 
 
 class UserProblemTrackRequest(BaseModel):
     leetcode_url: str = Field(
-        description="Full LeetCode problem URL, e.g. https://leetcode.com/problems/two-sum/"
+        description="Full problem URL (LeetCode or Codeforces), e.g. https://leetcode.com/problems/two-sum/ or https://codeforces.com/problemset/problem/4/A"
     )
     status: ProblemStatus = ProblemStatus.NOT_STARTED
     notes: str | None = Field(default=None, max_length=5000)
@@ -19,13 +20,9 @@ class UserProblemTrackRequest(BaseModel):
 
     @field_validator("leetcode_url")
     @classmethod
-    def validate_leetcode_url(cls, value: str) -> str:
+    def validate_url(cls, value: str) -> str:
         stripped = value.strip()
-        if not stripped.startswith("https://leetcode.com/problems/"):
-            raise ValueError(
-                "URL must be a valid LeetCode problem URL "
-                "(https://leetcode.com/problems/<slug>/)."
-            )
+        detect_platform(stripped)
         return stripped
 
 

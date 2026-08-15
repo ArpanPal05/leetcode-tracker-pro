@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class Platform(str, Enum):
+    LEETCODE = "LeetCode"
+    CODEFORCES = "Codeforces"
+
+
 class Difficulty(str, Enum):
     EASY = "Easy"
     MEDIUM = "Medium"
