@@ -83,8 +83,12 @@ export class MyProblemsListComponent implements OnInit {
 
   onDeleteProblem(problem: UserProblemResponse): void {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
-      data: { title: problem.problem?.title || 'Unknown Problem' },
-      width: '420px'
+      data: {
+        title: problem.problem?.title || 'Unknown Problem',
+        difficulty: problem.problem?.difficulty,
+        status: problem.status
+      },
+      width: '460px'
     });
 
     dialogRef.afterClosed().subscribe((confirmed) => {

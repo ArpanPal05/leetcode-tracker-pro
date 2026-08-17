@@ -67,7 +67,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
       display: flex;
       flex-direction: column;
       height: 100vh;
-      width: 100vw;
+      width: 100%;
       overflow: hidden;
       background-color: #0f172a;
     }
@@ -75,6 +75,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
     .shell-sidenav-container {
       flex: 1;
       background-color: #0f172a;
+      overflow-x: hidden;
     }
 
     .shell-sidenav {
@@ -89,6 +90,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
       height: 100%;
       background-color: #0f172a;
       position: relative;
+      overflow-x: hidden;
     }
 
     .global-progress-bar {
@@ -127,6 +129,8 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
       flex: 1;
       padding: 1.5rem;
       overflow-y: auto;
+      overflow-x: hidden;
+      max-width: 100%;
     }
   `]
 })

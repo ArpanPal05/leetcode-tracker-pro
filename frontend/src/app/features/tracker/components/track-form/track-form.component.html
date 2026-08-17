@@ -1,35 +1,87 @@
 <mat-card class="track-form-card">
+  <!-- Form Header -->
   <div class="form-header">
+    <div class="header-badge">
+      <mat-icon class="sparkle-icon">auto_awesome</mat-icon>
+      <span>Problem Importer</span>
+    </div>
     <h2>Track a Problem</h2>
-    <p>Paste a LeetCode or Codeforces problem URL to automatically import metadata and track your progress.</p>
+    <p class="subtitle">
+      Paste a problem URL from any supported platform to automatically import metadata, track difficulty, and record your solution.
+    </p>
+
+    <!-- Supported Platforms Badge List -->
+    <div class="supported-platforms">
+      <span class="platform-chip" [class.active]="detectedPlatform === 'LeetCode'">
+        <span class="dot dot-leetcode"></span>
+        LeetCode
+      </span>
+      <span class="platform-chip" [class.active]="detectedPlatform === 'Codeforces'">
+        <span class="dot dot-codeforces"></span>
+        Codeforces
+      </span>
+      <span class="platform-chip" [class.active]="detectedPlatform === 'CodeChef'">
+        <span class="dot dot-codechef"></span>
+        CodeChef
+      </span>
+    </div>
   </div>
 
   <form [formGroup]="trackForm" (ngSubmit)="onSubmit()" class="track-form">
-    <!-- Problem URL -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Problem URL *</mat-label>
-      <input
-        matInput
-        type="url"
-        formControlName="leetcode_url"
-        placeholder="Paste a LeetCode or Codeforces problem URL"
-      />
-      <mat-icon matSuffix>link</mat-icon>
-      <mat-error *ngIf="trackForm.get('leetcode_url')?.hasError('required')">
-        Problem URL is required.
-      </mat-error>
-      <mat-error *ngIf="trackForm.get('leetcode_url')?.hasError('invalidProblemUrl')">
-        Must be a valid supported problem URL from LeetCode or Codeforces.
-      </mat-error>
-    </mat-form-field>
+    <!-- Problem URL Input Field -->
+    <div class="url-input-container">
+      <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+        <mat-label>Problem URL *</mat-label>
+        <mat-icon matPrefix class="field-icon">link</mat-icon>
+        <input
+          matInput
+          type="url"
+          formControlName="leetcode_url"
+          placeholder="Paste a LeetCode, Codeforces, or CodeChef problem URL"
+          autocomplete="off"
+        />
+        <button
+          *ngIf="urlValue"
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="clearUrl()"
+          matTooltip="Clear URL"
+          class="clear-btn"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+        <mat-error *ngIf="trackForm.get('leetcode_url')?.hasError('required')">
+          Problem URL is required.
+        </mat-error>
+        <mat-error *ngIf="trackForm.get('leetcode_url')?.hasError('invalidProblemUrl')">
+          Must be a valid problem URL from LeetCode, Codeforces, or CodeChef.
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Real-time Detection Banner -->
+      <div *ngIf="detectedPlatform" class="detection-pill animate-fade-in" [ngClass]="'detected-' + detectedPlatform.toLowerCase()">
+        <mat-icon class="check-icon">verified</mat-icon>
+        <span>Detected Platform: <strong>{{ detectedPlatform }}</strong></span>
+      </div>
+    </div>
 
     <!-- Status & Language Row -->
     <div class="form-row">
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" floatLabel="always" class="form-field full-width">
         <mat-label>Status *</mat-label>
         <mat-select formControlName="status">
+          <mat-select-trigger>
+            <div class="status-trigger-content" *ngIf="selectedStatusOption as opt">
+              <mat-icon class="trigger-icon" [ngClass]="opt.colorClass" [fontIcon]="opt.icon"></mat-icon>
+              <span>{{ opt.label }}</span>
+            </div>
+          </mat-select-trigger>
           <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
-            {{ opt.label }}
+            <div class="status-option-item">
+              <mat-icon class="option-icon" [ngClass]="opt.colorClass" [fontIcon]="opt.icon"></mat-icon>
+              <span>{{ opt.label }}</span>
+            </div>
           </mat-option>
         </mat-select>
         <mat-error *ngIf="trackForm.get('status')?.hasError('required')">
@@ -37,8 +89,9 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" floatLabel="always" class="form-field full-width">
         <mat-label>Programming Language</mat-label>
+        <mat-icon matPrefix class="field-icon">code</mat-icon>
         <mat-select formControlName="language">
           <mat-option *ngFor="let lang of languageOptions" [value]="lang">
             {{ lang }}
@@ -47,58 +100,97 @@
       </mat-form-field>
     </div>
 
-    <!-- Time Taken & Solution URL Row -->
+    <!-- Time Taken & Solution URL Row (Symmetrical Matching Sizing) -->
     <div class="form-row">
-      <mat-form-field appearance="outline">
-        <mat-label>Time Taken (Minutes)</mat-label>
-        <input
-          matInput
-          type="number"
-          min="0"
-          formControlName="time_taken_minutes"
-          placeholder="e.g. 25"
-        />
-        <mat-icon matSuffix>timer</mat-icon>
-        <mat-error *ngIf="trackForm.get('time_taken_minutes')?.hasError('min')">
-          Time taken must be a non-negative number.
-        </mat-error>
-      </mat-form-field>
+      <div class="input-with-presets">
+        <mat-form-field appearance="outline" floatLabel="always" class="form-field full-width">
+          <mat-label>Time Taken (Minutes)</mat-label>
+          <mat-icon matPrefix class="field-icon">timer</mat-icon>
+          <input
+            matInput
+            type="number"
+            min="0"
+            formControlName="time_taken_minutes"
+            placeholder="e.g. 25"
+          />
+          <mat-error *ngIf="trackForm.get('time_taken_minutes')?.hasError('min')">
+            Time taken must be a non-negative number.
+          </mat-error>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Solution GitHub / Repository URL</mat-label>
-        <input
+        <!-- Preset Chips directly below Time input -->
+        <div class="preset-chips">
+          <span class="preset-label">Quick set:</span>
+          <button
+            *ngFor="let preset of quickTimePresets"
+            type="button"
+            class="preset-chip"
+            [class.active]="trackForm.get('time_taken_minutes')?.value === preset"
+            (click)="setTimePreset(preset)"
+          >
+            {{ preset }}m
+          </button>
+        </div>
+      </div>
+
+      <div class="input-column">
+        <mat-form-field appearance="outline" floatLabel="always" class="form-field full-width">
+          <mat-label>Solution GitHub / Repository URL</mat-label>
+          <mat-icon matPrefix class="field-icon">terminal</mat-icon>
+          <input
+            matInput
+            type="url"
+            formControlName="solution_url"
+            placeholder="https://github.com/..."
+          />
+          <mat-error *ngIf="trackForm.get('solution_url')?.hasError('pattern')">
+            Please enter a valid URL starting with http:// or https://.
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Add to Favorite Card -->
+    <div
+      class="favorite-card"
+      [class.is-favorite]="isFavorite"
+      (click)="toggleFavorite()"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="toggleFavorite()"
+      (keydown.space)="toggleFavorite(); $event.preventDefault()"
+    >
+      <div class="favorite-info">
+        <div class="star-wrapper">
+          <mat-icon class="fav-star-icon" [fontIcon]="isFavorite ? 'star' : 'star_border'"></mat-icon>
+        </div>
+        <div class="fav-text">
+          <span class="fav-title">Favorite Problem</span>
+          <span class="fav-subtitle">Bookmark this problem for quick access and revision</span>
+        </div>
+      </div>
+      <div class="fav-status-chip" [class.active]="isFavorite">
+        <mat-icon class="chip-star">{{ isFavorite ? 'star' : 'star_border' }}</mat-icon>
+        <span>{{ isFavorite ? 'Favorited' : 'Not Favorited' }}</span>
+      </div>
+    </div>
+
+    <!-- Personal Notes Textarea with Proper Padding & Sizing -->
+    <div class="notes-container">
+      <mat-form-field appearance="outline" floatLabel="always" class="full-width notes-field">
+        <mat-label>Personal Notes & Key Takeaways</mat-label>
+        <textarea
           matInput
-          type="url"
-          formControlName="solution_url"
-          placeholder="https://github.com/..."
-        />
-        <mat-icon matSuffix>code</mat-icon>
-        <mat-error *ngIf="trackForm.get('solution_url')?.hasError('pattern')">
-          Please enter a valid URL starting with http:// or https://.
+          rows="5"
+          formControlName="notes"
+          placeholder="Write down intuition, time/space complexity analysis (O(N)), edge cases, or key lessons..."
+        ></textarea>
+        <mat-hint align="end">{{ (trackForm.get('notes')?.value || '').length }} / 5000</mat-hint>
+        <mat-error *ngIf="trackForm.get('notes')?.hasError('maxlength')">
+          Notes cannot exceed 5000 characters.
         </mat-error>
       </mat-form-field>
     </div>
-
-    <!-- Favorite Toggle -->
-    <div class="favorite-toggle-container">
-      <mat-slide-toggle formControlName="favorite" color="primary">
-        Add to Favorites
-      </mat-slide-toggle>
-    </div>
-
-    <!-- Notes Textarea -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Personal Notes & Key Takeaways</mat-label>
-      <textarea
-        matInput
-        rows="4"
-        formControlName="notes"
-        placeholder="Write down space/time complexity analysis, key intuition, or edge cases..."
-      ></textarea>
-      <mat-error *ngIf="trackForm.get('notes')?.hasError('maxlength')">
-        Notes cannot exceed 5000 characters.
-      </mat-error>
-    </mat-form-field>
 
     <!-- Submit Button -->
     <button
@@ -109,8 +201,9 @@
       [disabled]="trackForm.invalid || loading"
     >
       <div class="button-content">
-        <mat-spinner *ngIf="loading" diameter="20" color="accent"></mat-spinner>
-        <span>{{ loading ? 'Importing & Tracking...' : 'Track Problem' }}</span>
+        <mat-spinner *ngIf="loading" diameter="22" color="accent"></mat-spinner>
+        <mat-icon *ngIf="!loading">add_task</mat-icon>
+        <span>{{ loading ? 'Importing & Tracking Problem...' : 'Track Problem' }}</span>
       </div>
     </button>
   </form>

@@ -34,8 +34,10 @@ body.light-theme {
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+body, h1, h2, h3, h4, h5, h6, p, ul, ol, figure, blockquote, dl, dd {
   margin: 0;
-  padding: 0;
 }
 
 html,
@@ -158,3 +160,89 @@ textarea {
     color: var(--color-text-primary) !important;
   }
 }
+
+/* Theme-Aware Material Form Fields & Inputs */
+.mat-mdc-form-field {
+  width: 100%;
+
+  .mdc-text-field--outlined {
+    --mdc-outlined-text-field-outline-color: var(--color-border);
+    --mdc-outlined-text-field-hover-outline-color: var(--color-primary);
+    --mdc-outlined-text-field-focus-outline-color: var(--color-primary);
+    --mdc-outlined-text-field-input-text-color: var(--color-text-primary);
+    --mdc-outlined-text-field-label-text-color: var(--color-text-secondary);
+    --mdc-outlined-text-field-hover-label-text-color: var(--color-text-primary);
+    --mdc-outlined-text-field-focus-label-text-color: var(--color-primary);
+    background-color: var(--color-bg);
+    border-radius: 10px;
+  }
+
+  .mdc-floating-label {
+    background-color: var(--color-surface);
+    padding: 0 4px;
+    border-radius: 4px;
+    color: var(--color-text-secondary) !important;
+  }
+
+  &.mat-form-field-should-float .mdc-floating-label,
+  .mdc-floating-label--float-above {
+    color: var(--color-primary) !important;
+    background-color: var(--color-surface) !important;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .mat-mdc-form-field-icon-prefix {
+    padding-right: 8px !important;
+    color: var(--color-text-muted);
+  }
+
+  input.mat-mdc-input-element,
+  textarea.mat-mdc-input-element {
+    color: var(--color-text-primary) !important;
+
+    &::placeholder {
+      color: var(--color-text-muted) !important;
+      opacity: 0.75;
+    }
+  }
+
+  .mat-mdc-select-value {
+    color: var(--color-text-primary) !important;
+  }
+}
+
+/* Prevent Chart.js Canvas & Custom Component Containers from Overcoming Grid Cell Boundaries */
+app-difficulty-chart,
+app-language-chart,
+app-monthly-progress-chart,
+app-weekly-progress-chart,
+app-topic-distribution-chart,
+app-solve-time-chart,
+app-recent-activity,
+app-streak-card,
+app-heatmap {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.chart-container {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  canvas {
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+}
+
+

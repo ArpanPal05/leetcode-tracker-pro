@@ -25,3 +25,11 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "Bearer"
+
+
+class MeResponse(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+    created_at: str | None = None
+

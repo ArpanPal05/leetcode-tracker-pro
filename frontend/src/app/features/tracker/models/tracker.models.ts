@@ -21,9 +21,16 @@ export interface UserProblemTrackRequest {
 export interface TrackedProblemMeta {
   id: number;
   title: string;
-  title_slug: string;
+  slug?: string | null;
+  title_slug?: string | null;
   difficulty: string;
-  leetcode_url: string;
+  platform?: string;
+  external_id?: string | null;
+  platform_rating?: number | null;
+  frontend_question_id?: string | null;
+  is_premium?: boolean;
+  acceptance_rate?: number | null;
+  leetcode_url?: string;
 }
 
 export interface UserProblemResponse {

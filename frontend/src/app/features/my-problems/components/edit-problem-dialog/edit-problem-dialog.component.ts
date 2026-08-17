@@ -17,6 +17,13 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ProblemStatus, UserProblemResponse, UserProblemUpdateRequest } from '../../models/my-problems.models';
 import { MyProblemsStore } from '../../store/my-problems.store';
 
+export interface StatusOption {
+  label: string;
+  value: ProblemStatus;
+  icon: string;
+  colorClass: string;
+}
+
 @Component({
   selector: 'app-edit-problem-dialog',
   standalone: true,
@@ -34,112 +41,200 @@ import { MyProblemsStore } from '../../store/my-problems.store';
   ],
   template: `
     <div class="edit-dialog">
-      <div class="dialog-header">
-        <h2 mat-dialog-title>Edit Tracked Problem</h2>
-        <button mat-icon-button type="button" (click)="onCancel()" aria-label="Close">
+      <!-- Header Matching View Tile -->
+      <div class="details-header">
+        <div class="header-left">
+          <h2 mat-dialog-title class="dialog-title">
+            Edit {{ data.problem?.title || 'Tracked Problem' }}
+          </h2>
+          <span *ngIf="isFavorite" class="favorite-badge" title="Favorited">
+            <mat-icon class="star-icon">star</mat-icon>
+            <span>Favorite</span>
+          </span>
+        </div>
+        <button mat-icon-button type="button" class="close-btn" (click)="onCancel()" aria-label="Close">
           <mat-icon>close</mat-icon>
         </button>
       </div>
 
-      <div class="problem-meta-banner">
-        <span class="meta-title">{{ data.problem?.title || 'Unknown Problem' }}</span>
-        <span class="chip-difficulty" [ngClass]="(data.problem?.difficulty || '').toLowerCase()">
-          {{ data.problem?.difficulty || 'N/A' }}
-        </span>
-      </div>
-
       <form [formGroup]="editForm" (ngSubmit)="onSubmit()" class="edit-form">
-        <mat-dialog-content>
-          <!-- Status & Language Row -->
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Status *</mat-label>
-              <mat-select formControlName="status">
-                <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
-                  {{ opt.label }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="editForm.get('status')?.hasError('required')">
-                Status is required.
-              </mat-error>
-            </mat-form-field>
+        <mat-dialog-content class="details-content">
+          <!-- Section 1: Problem Overview Banner -->
+          <div class="section-container">
+            <div class="section-title">Problem Metadata</div>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Platform</span>
+                <span class="val">{{ data.problem?.platform || 'LeetCode' }}</span>
+              </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Language</mat-label>
-              <mat-select formControlName="language">
-                <mat-option *ngFor="let lang of languageOptions" [value]="lang">
-                  {{ lang }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+              <div class="info-item">
+                <span class="label">Difficulty</span>
+                <span class="chip-difficulty" [ngClass]="difficultyClass">
+                  {{ formattedDifficulty }}
+                </span>
+              </div>
+
+              <div class="info-item">
+                <span class="label">Tracked Date</span>
+                <span class="val">{{ data.created_at | date: 'MMM d, y' }}</span>
+              </div>
+
+              <div class="info-item" *ngIf="data.solved_at">
+                <span class="label">Solved Date</span>
+                <span class="val">{{ data.solved_at | date: 'MMM d, y' }}</span>
+              </div>
+            </div>
           </div>
 
-          <!-- Time Taken & Solution URL Row -->
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Time Taken (Minutes)</mat-label>
-              <input
+          <!-- Section 2: Status & Language -->
+          <div class="section-container">
+            <div class="section-title">Status & Language</div>
+            <div class="form-row">
+              <mat-form-field appearance="outline" floatLabel="always" class="form-field full-width">
+                <mat-label>Status *</mat-label>
+                <mat-select formControlName="status">
+                  <mat-select-trigger>
+                    <div class="status-trigger-content" *ngIf="selectedStatusOption as opt">
+                      <mat-icon class="trigger-icon" [ngClass]="opt.colorClass" [fontIcon]="opt.icon"></mat-icon>
+                      <span>{{ opt.label }}</span>
+                    </div>
+                  </mat-select-trigger>
+                  <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
+                    <div class="status-option-item">
+                      <mat-icon class="option-icon" [ngClass]="opt.colorClass" [fontIcon]="opt.icon"></mat-icon>
+                      <span>{{ opt.label }}</span>
+                    </div>
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="editForm.get('status')?.hasError('required')">
+                  Status is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" floatLabel="always" class="form-field full-width">
+                <mat-label>Language</mat-label>
+                <mat-icon matPrefix class="field-icon">code</mat-icon>
+                <mat-select formControlName="language">
+                  <mat-option *ngFor="let lang of languageOptions" [value]="lang">
+                    {{ lang }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Section 3: Solve Duration & Solution URL -->
+          <div class="section-container">
+            <div class="section-title">Solve Duration & Solution URL</div>
+            <div class="form-row">
+              <div class="input-with-presets">
+                <mat-form-field appearance="outline" floatLabel="always" class="form-field full-width">
+                  <mat-label>Time Taken (Minutes)</mat-label>
+                  <mat-icon matPrefix class="field-icon">timer</mat-icon>
+                  <input
+                    matInput
+                    type="number"
+                    min="0"
+                    formControlName="time_taken_minutes"
+                    placeholder="e.g. 25"
+                  />
+                  <mat-error *ngIf="editForm.get('time_taken_minutes')?.hasError('min')">
+                    Time taken must be non-negative.
+                  </mat-error>
+                </mat-form-field>
+
+                <div class="preset-chips">
+                  <span class="preset-label">Quick set:</span>
+                  <button
+                    *ngFor="let preset of quickTimePresets"
+                    type="button"
+                    class="preset-chip"
+                    [class.active]="editForm.get('time_taken_minutes')?.value === preset"
+                    (click)="setTimePreset(preset)"
+                  >
+                    {{ preset }}m
+                  </button>
+                </div>
+              </div>
+
+              <div class="input-column">
+                <mat-form-field appearance="outline" floatLabel="always" class="form-field full-width">
+                  <mat-label>Solution GitHub / Repo URL</mat-label>
+                  <mat-icon matPrefix class="field-icon">terminal</mat-icon>
+                  <input
+                    matInput
+                    type="url"
+                    formControlName="solution_url"
+                    placeholder="https://github.com/..."
+                  />
+                  <mat-error *ngIf="editForm.get('solution_url')?.hasError('pattern')">
+                    Must start with http:// or https://.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Favorite Bookmark -->
+          <div class="section-container">
+            <div class="section-title">Favorite Bookmark</div>
+            <div
+              class="favorite-card"
+              [class.is-favorite]="isFavorite"
+              (click)="toggleFavorite()"
+              role="button"
+              tabindex="0"
+            >
+              <div class="favorite-info">
+                <div class="star-wrapper">
+                  <mat-icon class="fav-star-icon" [fontIcon]="isFavorite ? 'star' : 'star_border'"></mat-icon>
+                </div>
+                <div class="fav-text">
+                  <span class="fav-title">Bookmark as Favorite</span>
+                  <span class="fav-subtitle">Pin this problem for quick access and revision</span>
+                </div>
+              </div>
+              <div class="fav-status-chip" [class.active]="isFavorite">
+                <mat-icon class="chip-star">{{ isFavorite ? 'star' : 'star_border' }}</mat-icon>
+                <span>{{ isFavorite ? 'Favorited' : 'Not Favorited' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: Notes & Insights -->
+          <div class="section-container">
+            <div class="section-title">Notes & Insights</div>
+            <mat-form-field appearance="outline" floatLabel="always" class="form-field full-width notes-field">
+              <mat-label>Personal Notes</mat-label>
+              <textarea
                 matInput
-                type="number"
-                min="0"
-                formControlName="time_taken_minutes"
-                placeholder="e.g. 30"
-              />
-              <mat-icon matSuffix>timer</mat-icon>
-              <mat-error *ngIf="editForm.get('time_taken_minutes')?.hasError('min')">
-                Time taken must be a non-negative number.
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Solution URL</mat-label>
-              <input
-                matInput
-                type="url"
-                formControlName="solution_url"
-                placeholder="https://github.com/..."
-              />
-              <mat-icon matSuffix>code</mat-icon>
-              <mat-error *ngIf="editForm.get('solution_url')?.hasError('pattern')">
-                Please enter a valid URL.
+                rows="4"
+                formControlName="notes"
+                placeholder="Write intuition, time/space complexity O(N), or key takeaways..."
+              ></textarea>
+              <mat-hint align="end">{{ (editForm.get('notes')?.value || '').length }} / 5000</mat-hint>
+              <mat-error *ngIf="editForm.get('notes')?.hasError('maxlength')">
+                Notes cannot exceed 5000 characters.
               </mat-error>
             </mat-form-field>
           </div>
-
-          <!-- Favorite Toggle -->
-          <div class="favorite-toggle-container">
-            <mat-slide-toggle formControlName="favorite" color="primary">
-              Mark as Favorite ★
-            </mat-slide-toggle>
-          </div>
-
-          <!-- Notes -->
-          <mat-form-field appearance="outline" class="full-width" style="margin-top: 0.75rem;">
-            <mat-label>Notes & Insights</mat-label>
-            <textarea
-              matInput
-              rows="4"
-              formControlName="notes"
-              placeholder="Update space/time complexity notes or key intuition..."
-            ></textarea>
-            <mat-error *ngIf="editForm.get('notes')?.hasError('maxlength')">
-              Notes cannot exceed 5000 characters.
-            </mat-error>
-          </mat-form-field>
         </mat-dialog-content>
 
-        <mat-dialog-actions align="end">
-          <button mat-button type="button" (click)="onCancel()" [disabled]="myProblemsStore.loading()">
+        <mat-dialog-actions align="end" class="dialog-actions">
+          <button mat-button type="button" class="cancel-btn" (click)="onCancel()" [disabled]="myProblemsStore.loading()">
             Cancel
           </button>
           <button
             mat-raised-button
             color="primary"
             type="submit"
+            class="save-btn"
             [disabled]="editForm.invalid || myProblemsStore.loading()"
           >
             <div class="button-content">
               <mat-spinner *ngIf="myProblemsStore.loading()" diameter="18" color="accent"></mat-spinner>
+              <mat-icon *ngIf="!myProblemsStore.loading()">save</mat-icon>
               <span>{{ myProblemsStore.loading() ? 'Saving...' : 'Save Changes' }}</span>
             </div>
           </button>
@@ -153,12 +248,12 @@ export class EditProblemDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   readonly myProblemsStore = inject(MyProblemsStore);
 
-  readonly statusOptions = [
-    { label: 'Not Started', value: ProblemStatus.NOT_STARTED },
-    { label: 'Attempting', value: ProblemStatus.ATTEMPTING },
-    { label: 'Solved', value: ProblemStatus.SOLVED },
-    { label: 'Needs Revision', value: ProblemStatus.NEEDS_REVISION },
-    { label: 'Mastered', value: ProblemStatus.MASTERED }
+  readonly statusOptions: StatusOption[] = [
+    { label: 'Not Started', value: ProblemStatus.NOT_STARTED, icon: 'hourglass_empty', colorClass: 'status-not-started' },
+    { label: 'In Progress / Attempting', value: ProblemStatus.ATTEMPTING, icon: 'timelapse', colorClass: 'status-attempting' },
+    { label: 'Solved', value: ProblemStatus.SOLVED, icon: 'check_circle', colorClass: 'status-solved' },
+    { label: 'Needs Revision', value: ProblemStatus.NEEDS_REVISION, icon: 'update', colorClass: 'status-needs-revision' },
+    { label: 'Mastered', value: ProblemStatus.MASTERED, icon: 'military_tech', colorClass: 'status-mastered' }
   ];
 
   readonly languageOptions = [
@@ -170,8 +265,12 @@ export class EditProblemDialogComponent implements OnInit {
     'Go',
     'Rust',
     'C#',
-    'SQL'
+    'SQL',
+    'Kotlin',
+    'Swift'
   ];
+
+  readonly quickTimePresets = [15, 30, 45, 60, 90];
 
   editForm!: FormGroup;
 
@@ -191,6 +290,42 @@ export class EditProblemDialogComponent implements OnInit {
     });
   }
 
+  get selectedStatusOption(): StatusOption {
+    const val = this.editForm?.get('status')?.value;
+    return this.statusOptions.find((o) => o.value === val) || this.statusOptions[2];
+  }
+
+  get isFavorite(): boolean {
+    return Boolean(this.editForm?.get('favorite')?.value);
+  }
+
+  get formattedDifficulty(): string {
+    const diff = this.data.problem?.difficulty || '';
+    switch (diff.toUpperCase()) {
+      case 'EASY': return 'Easy';
+      case 'MEDIUM': return 'Medium';
+      case 'HARD': return 'Hard';
+      default: return diff ? diff.charAt(0).toUpperCase() + diff.slice(1).toLowerCase() : 'Medium';
+    }
+  }
+
+  get difficultyClass(): string {
+    return (this.data.problem?.difficulty || 'medium').toLowerCase();
+  }
+
+  toggleFavorite(): void {
+    this.editForm.patchValue({
+      favorite: !this.isFavorite
+    });
+  }
+
+  setTimePreset(minutes: number): void {
+    const current = this.editForm.get('time_taken_minutes')?.value;
+    this.editForm.patchValue({
+      time_taken_minutes: current === minutes ? null : minutes
+    });
+  }
+
   onCancel(): void {
     this.dialogRef.close();
   }
@@ -205,7 +340,7 @@ export class EditProblemDialogComponent implements OnInit {
     const request: UserProblemUpdateRequest = {
       status: val.status,
       language: val.language || null,
-      time_taken_minutes: val.time_taken_minutes !== null ? Number(val.time_taken_minutes) : null,
+      time_taken_minutes: val.time_taken_minutes !== null && val.time_taken_minutes !== '' ? Number(val.time_taken_minutes) : null,
       favorite: Boolean(val.favorite),
       solution_url: val.solution_url ? val.solution_url.trim() : null,
       notes: val.notes ? val.notes.trim() : null

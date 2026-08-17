@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 from sqlalchemy import create_engine
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 
 from app.db.base import Base
@@ -23,7 +24,11 @@ from app.shared.enums import ProblemStatus
 class TestMultiPlatformAPIEndpoints(unittest.TestCase):
 
     def setUp(self):
-        self.engine = create_engine("sqlite:///:memory:")
+        self.engine = create_engine(
+            "sqlite:///:memory:",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
         Base.metadata.create_all(bind=self.engine)
         Session = sessionmaker(bind=self.engine)
         self.db = Session()
@@ -65,6 +70,7 @@ class TestMultiPlatformAPIEndpoints(unittest.TestCase):
     def tearDown(self):
         self.db.close()
         Base.metadata.drop_all(bind=self.engine)
+        self.engine.dispose()
 
     def test_track_codeforces_via_user_problems_track(self):
         self.mock_cf_client.fetch_problem.return_value = CodeforcesProblemData(

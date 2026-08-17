@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -72,7 +72,7 @@ class UserProblemService:
         if existing is not None:
             raise UserProblemAlreadyExists()
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         solved_at = (
             now
             if request.status in (ProblemStatus.SOLVED, ProblemStatus.MASTERED)
@@ -114,7 +114,7 @@ class UserProblemService:
         if existing is not None:
             raise UserProblemAlreadyExists()
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         solved_at = (
             now
             if request.status in (ProblemStatus.SOLVED, ProblemStatus.MASTERED)
@@ -164,7 +164,7 @@ class UserProblemService:
             ProblemStatus.MASTERED,
         ):
             if user_problem.solved_at is None:
-                user_problem.solved_at = datetime.utcnow()
+                user_problem.solved_at = datetime.now(timezone.utc)
 
         for field, value in update_data.items():
             if field == "solved_at" and user_problem.solved_at is not None:
@@ -200,7 +200,7 @@ class UserProblemService:
     ) -> UserProblem:
         user_problem = self.get_user_problem(db, user_problem_id, user_id)
         user_problem.revision_count += 1
-        user_problem.last_revised_at = datetime.utcnow()
+        user_problem.last_revised_at = datetime.now(timezone.utc)
         return self.repository.update(db, user_problem)
 
     def update_status(
@@ -213,7 +213,7 @@ class UserProblemService:
         user_problem = self.get_user_problem(db, user_problem_id, user_id)
         user_problem.status = status
         if status in (ProblemStatus.SOLVED, ProblemStatus.MASTERED) and not user_problem.solved_at:
-            user_problem.solved_at = datetime.utcnow()
+            user_problem.solved_at = datetime.now(timezone.utc)
         return self.repository.update(db, user_problem)
 
     def list_user_problems(

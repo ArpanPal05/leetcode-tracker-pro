@@ -125,8 +125,9 @@ export class OverviewCardsComponent {
   @Input() activity: DashboardActivity | null = null;
 
   getAvgSolveTime(): string {
-    const mins = this.activity?.time_statistics?.avg_time_minutes;
-    if (mins === undefined || mins === null || mins === 0) return '0 mins';
+    const stats = this.activity?.time_statistics;
+    const mins = stats?.average_minutes ?? stats?.avg_time_minutes ?? 0;
+    if (mins === 0) return '0 mins';
     return `${mins} mins`;
   }
 }

@@ -41,6 +41,10 @@ class TimeStatistics(BaseModel):
     minimum_minutes: int = 0
     maximum_minutes: int = 0
     total_minutes: int = 0
+    avg_time_minutes: float = 0.0
+    min_time_minutes: int = 0
+    max_time_minutes: int = 0
+    total_time_minutes: int = 0
 
 
 class DashboardActivityResponse(BaseModel):

@@ -22,7 +22,7 @@ import { DashboardActivity } from '../../models/analytics.models';
           </div>
           <div class="time-info">
             <span class="label">Average Time</span>
-            <span class="value">{{ (activity?.time_statistics?.avg_time_minutes ?? 0) + ' mins' }}</span>
+            <span class="value">{{ avgTime + ' mins' }}</span>
           </div>
         </div>
 
@@ -32,7 +32,7 @@ import { DashboardActivity } from '../../models/analytics.models';
           </div>
           <div class="time-info">
             <span class="label">Minimum Time</span>
-            <span class="value">{{ (activity?.time_statistics?.min_time_minutes ?? 0) + ' mins' }}</span>
+            <span class="value">{{ minTime + ' mins' }}</span>
           </div>
         </div>
 
@@ -42,7 +42,7 @@ import { DashboardActivity } from '../../models/analytics.models';
           </div>
           <div class="time-info">
             <span class="label">Maximum Time</span>
-            <span class="value">{{ (activity?.time_statistics?.max_time_minutes ?? 0) + ' mins' }}</span>
+            <span class="value">{{ maxTime + ' mins' }}</span>
           </div>
         </div>
 
@@ -52,7 +52,7 @@ import { DashboardActivity } from '../../models/analytics.models';
           </div>
           <div class="time-info">
             <span class="label">Total Time Spent</span>
-            <span class="value">{{ formatTotalTime(activity?.time_statistics?.total_time_minutes ?? 0) }}</span>
+            <span class="value">{{ formatTotalTime(totalTime) }}</span>
           </div>
         </div>
       </div>
@@ -84,12 +84,10 @@ import { DashboardActivity } from '../../models/analytics.models';
     }
     .time-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 1rem;
+      width: 100%;
 
-      @media (max-width: 900px) {
-        grid-template-columns: repeat(2, 1fr);
-      }
       @media (max-width: 480px) {
         grid-template-columns: 1fr;
       }
@@ -143,6 +141,26 @@ import { DashboardActivity } from '../../models/analytics.models';
 })
 export class SolveTimeChartComponent {
   @Input() activity: DashboardActivity | null = null;
+
+  get avgTime(): number {
+    const stats = this.activity?.time_statistics;
+    return stats?.average_minutes ?? stats?.avg_time_minutes ?? 0;
+  }
+
+  get minTime(): number {
+    const stats = this.activity?.time_statistics;
+    return stats?.minimum_minutes ?? stats?.min_time_minutes ?? 0;
+  }
+
+  get maxTime(): number {
+    const stats = this.activity?.time_statistics;
+    return stats?.maximum_minutes ?? stats?.max_time_minutes ?? 0;
+  }
+
+  get totalTime(): number {
+    const stats = this.activity?.time_statistics;
+    return stats?.total_minutes ?? stats?.total_time_minutes ?? 0;
+  }
 
   formatTotalTime(minutes: number): string {
     if (minutes < 60) return `${minutes} mins`;

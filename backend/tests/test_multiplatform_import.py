@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 from sqlalchemy import create_engine
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 
 from app.db.base import Base
@@ -22,7 +23,11 @@ from app.shared.enums import Difficulty, Platform
 class TestMultiPlatformImport(unittest.TestCase):
 
     def setUp(self):
-        self.engine = create_engine("sqlite:///:memory:")
+        self.engine = create_engine(
+            "sqlite:///:memory:",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
         Base.metadata.create_all(bind=self.engine)
         Session = sessionmaker(bind=self.engine)
         self.db = Session()
@@ -30,6 +35,7 @@ class TestMultiPlatformImport(unittest.TestCase):
     def tearDown(self):
         self.db.close()
         Base.metadata.drop_all(bind=self.engine)
+        self.engine.dispose()
 
     def test_import_codechef_problem_success(self):
         mock_cc_client = MagicMock()

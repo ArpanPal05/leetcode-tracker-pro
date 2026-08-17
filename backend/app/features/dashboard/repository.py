@@ -195,6 +195,10 @@ class DashboardRepository:
             "minimum_minutes": int(time_row.min_min),
             "maximum_minutes": int(time_row.max_min),
             "total_minutes": int(time_row.sum_min),
+            "avg_time_minutes": round(float(time_row.avg_min), 2),
+            "min_time_minutes": int(time_row.min_min),
+            "max_time_minutes": int(time_row.max_min),
+            "total_time_minutes": int(time_row.sum_min),
         }
 
         return {

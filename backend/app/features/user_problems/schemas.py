@@ -9,7 +9,7 @@ from app.shared.enums import ProblemStatus
 
 class UserProblemTrackRequest(BaseModel):
     leetcode_url: str = Field(
-        description="Full problem URL (LeetCode or Codeforces), e.g. https://leetcode.com/problems/two-sum/ or https://codeforces.com/problemset/problem/4/A"
+        description="Full problem URL (LeetCode, Codeforces, or CodeChef), e.g. https://leetcode.com/problems/two-sum/ or https://codeforces.com/problemset/problem/4/A or https://www.codechef.com/problems/START01"
     )
     status: ProblemStatus = ProblemStatus.NOT_STARTED
     notes: str | None = Field(default=None, max_length=5000)

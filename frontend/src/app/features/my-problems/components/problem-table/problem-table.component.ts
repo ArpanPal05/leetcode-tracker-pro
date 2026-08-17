@@ -73,6 +73,18 @@ import { UserProblemResponse } from '../../models/my-problems.models';
             </td>
           </ng-container>
 
+          <!-- Time Taken Column -->
+          <ng-container matColumnDef="time_taken">
+            <th mat-header-cell *matHeaderCellDef>Time Taken</th>
+            <td mat-cell *matCellDef="let element">
+              <span *ngIf="element.time_taken_minutes" class="time-taken-chip">
+                <mat-icon class="time-icon">timer</mat-icon>
+                <span>{{ formatTime(element.time_taken_minutes) }}</span>
+              </span>
+              <span *ngIf="!element.time_taken_minutes" class="text-muted">—</span>
+            </td>
+          </ng-container>
+
           <!-- Tracked Date Column -->
           <ng-container matColumnDef="tracked_at">
             <th mat-header-cell *matHeaderCellDef>Tracked Date</th>
@@ -139,7 +151,16 @@ export class ProblemTableComponent {
     'difficulty',
     'status',
     'language',
+    'time_taken',
     'tracked_at',
     'actions'
   ];
+
+  formatTime(minutes: number | null): string {
+    if (!minutes) return '—';
+    if (minutes < 60) return `${minutes}m`;
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+  }
 }

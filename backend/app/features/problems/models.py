@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, DateTime, Float, Integer, String, UniqueConstraint
 from sqlalchemy import Enum as SqlEnum
@@ -75,7 +75,7 @@ class Problem(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.utcnow,
+        default=lambda: datetime.now(timezone.utc),
     )
 
     user_problems = relationship(

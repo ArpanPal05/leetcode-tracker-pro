@@ -1,23 +1,43 @@
 .track-page-container {
-  padding-bottom: 2rem;
+  padding: 1.5rem 1rem 3rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+
+  @media (max-width: 640px) {
+    padding: 1rem 0.5rem 2rem 0.5rem;
+  }
 }
 
 .error-banner {
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto 1.5rem auto;
   background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
+  color: #ef4444;
   padding: 0.875rem 1.25rem;
   border-radius: 12px;
   font-size: 0.875rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+  animation: shake 0.4s ease-in-out;
 
   mat-icon {
     font-size: 1.25rem;
     width: 1.25rem;
     height: 1.25rem;
+    flex-shrink: 0;
   }
+
+  span {
+    line-height: 1.4;
+    font-weight: 500;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
 }

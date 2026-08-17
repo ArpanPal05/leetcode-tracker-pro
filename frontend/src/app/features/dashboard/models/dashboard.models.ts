@@ -34,10 +34,14 @@ export interface RecentActivityItem {
 }
 
 export interface TimeStatistics {
-  avg_time_minutes: number;
-  min_time_minutes: number;
-  max_time_minutes: number;
-  total_time_minutes: number;
+  average_minutes?: number;
+  minimum_minutes?: number;
+  maximum_minutes?: number;
+  total_minutes?: number;
+  avg_time_minutes?: number;
+  min_time_minutes?: number;
+  max_time_minutes?: number;
+  total_time_minutes?: number;
 }
 
 export interface DashboardActivity {

@@ -33,7 +33,12 @@ import { UserProblemResponse } from '../../models/my-problems.models';
         </div>
 
         <div class="card-footer-row">
-          <span>Language: {{ item.language || 'N/A' }}</span>
+          <div class="meta-details-footer">
+            <span>Lang: {{ item.language || 'N/A' }}</span>
+            <span *ngIf="item.time_taken_minutes" class="time-taken-badge">
+              <mat-icon>timer</mat-icon> {{ formatTime(item.time_taken_minutes) }}
+            </span>
+          </div>
           <div class="action-btns">
             <button mat-icon-button color="primary" (click)="viewDetails.emit(item)" title="View Details">
               <mat-icon>visibility</mat-icon>
@@ -58,4 +63,12 @@ export class ProblemCardComponent {
   @Output() editProblem = new EventEmitter<UserProblemResponse>();
   @Output() deleteProblem = new EventEmitter<UserProblemResponse>();
   @Output() toggleFavorite = new EventEmitter<number>();
+
+  formatTime(minutes: number | null): string {
+    if (!minutes) return '';
+    if (minutes < 60) return `${minutes}m`;
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+  }
 }

@@ -75,3 +75,26 @@
   align-items: center;
   gap: 0.25rem;
 }
+
+.time-taken-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+
+  .time-icon {
+    font-size: 0.95rem;
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+}
+
+.text-muted {
+  color: #64748b;
+}
