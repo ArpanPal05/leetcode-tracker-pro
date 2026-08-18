@@ -61,8 +61,21 @@ export class AuthStore {
       },
       error: (err) => {
         this.loading.set(false);
-        const message = err?.error?.message || 'Login failed. Please check your credentials.';
+        const rawErr = err?.error;
+        let message = 'Invalid email or password.';
+
+        if (typeof rawErr?.detail === 'string') {
+          message = rawErr.detail;
+        } else if (typeof rawErr?.message === 'string') {
+          message = rawErr.message;
+        } else if (typeof rawErr === 'string') {
+          message = rawErr;
+        } else if (err?.message && !err.message.includes('Http failure')) {
+          message = err.message;
+        }
+
         this.error.set(message);
+        this.notificationService.error(message);
       }
     });
   }

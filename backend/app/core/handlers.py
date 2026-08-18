@@ -44,6 +44,7 @@ def register_exception_handlers(app: FastAPI):
             content={
                 "success": False,
                 "message": "Invalid email or password.",
+                "detail": "Invalid email or password.",
             },
         )
 

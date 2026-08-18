@@ -65,9 +65,7 @@ class AuthService:
             request.password,
             user.password_hash,
         ):
-            raise ValueError(
-                "Invalid email or password."
-            )
+            raise InvalidCredentials()
 
         token = create_access_token(
             user.email,
